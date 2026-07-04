@@ -6,4 +6,4 @@ from user.auth_router import router as user_router
 app = FastAPI()
 
 app.include_router(product_router, prefix='/product', tags=['Product'])
-app.include_router(user_router, prefix='auth/', tags=['Auth'])
+app.include_router(user_router, prefix='/auth', tags=['Auth'])

@@ -66,15 +66,11 @@ async def login(
             status_code=status.HTTP_403_FORBIDDEN, detail="Foydalanuvchi faol emas"
         )
 
-    token_payload = {"sub": user.id}
+    token_payload = {"sub": str(user.id)}
     access_token = create_access_token(token_payload)
     refresh_token = create_refresh_token(token_payload)
 
-    return {
-        'msg': 'Signin',
-        'status':status.HTTP_200_OK,
-        'tokens' : Token(access_token=access_token, refresh_token=refresh_token)
-    }
+    return Token(access_token=access_token, refresh_token=refresh_token)
 
 @router.post("/refresh", response_model=Token)
 async def refresh_access_token(refresh_token: str):
@@ -86,7 +82,7 @@ async def refresh_access_token(refresh_token: str):
         )
 
     user_id = payload.get("sub")
-    token_payload = {"sub": user_id}
+    token_payload = {"sub": str(user_id)}
     new_access_token = create_access_token(token_payload)
     new_refresh_token = create_refresh_token(token_payload)
 
@@ -109,7 +105,7 @@ async def get_current_user(
     if user_id is None:
         raise credentials_exception
 
-    result = await db.execute(select(User).where(User.id == user_id))
+    result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
     if user is None:
         raise credentials_exception
