@@ -25,7 +25,6 @@ async def get_current_user(
     if payload is None or payload.get("type") != "access":
         raise credentials_exception
 
-    # Blacklistda bor-yo'qligini tekshirish
     blacklisted = await db.execute(
         select(Blacklist).where(Blacklist.token == token)
     )
