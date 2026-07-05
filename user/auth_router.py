@@ -150,9 +150,7 @@ async def logout(
 ):
     payload = decode_token(token)
 
-    type = payload.get("type")
-
-    if type != "refresh" or type is None:
+    if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Tizimga kirish tasdiqlanmadi",
@@ -166,11 +164,10 @@ async def logout(
             detail="Tizimga kirish tasdiqlanmadi",
         )
     
-    refresh_token = Blacklist(
-        refresh=token,
+    blacklisted_token = Blacklist(
+        token=token,
         exp_time=exp,
     )
-    db.add(refresh_token)
+    db.add(blacklisted_token)
     await db.commit()
-    await db.refresh(refresh_token)
     return {"msg": "Tizimdan chiqish muvaffaqiyatli amalga oshirildi"}

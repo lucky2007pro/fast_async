@@ -20,5 +20,5 @@ class Blacklist(Base):
     __tablename__ = "blacklist"
     
     id = Column(Integer, primary_key=True)
-    refresh = Column(String(255), unique=True, nullable=False, index=True)
-    exp_time = Column(DateTime, default=func.now())
+    token = Column(String(500), unique=True, nullable=False, index=True)
+    exp_time = Column(Integer, nullable=False)
