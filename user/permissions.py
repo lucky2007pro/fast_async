@@ -1,15 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from db import get_db
 from user.models import User
-from user.schemas import UserCreate, Token, UserUpdate, PasswordChange, UserResponse
 from user.security import (
-    hash_password,
-    verify_password,
-    create_access_token,
-    create_refresh_token,
     decode_token
 )
 
