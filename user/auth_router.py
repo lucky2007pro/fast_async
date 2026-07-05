@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from user.permissions import get_current_user
+from user.permissions import get_current_user, is_authenticated
 
 from db import get_db
 from user.models import User, Blacklist
@@ -142,3 +142,35 @@ async def change_password(
 
 
 
+@router.post("/logout")
+async def logout(
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db),
+    _: bool = Depends(is_authenticated)
+):
+    payload = decode_token(token)
+
+    type = payload.get("type")
+
+    if type != "refresh" or type is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Tizimga kirish tasdiqlanmadi",
+        )
+    
+    exp = payload.get("exp")
+    
+    if exp is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Tizimga kirish tasdiqlanmadi",
+        )
+    
+    refresh_token = Blacklist(
+        refresh=token,
+        exp_time=exp,
+    )
+    db.add(refresh_token)
+    await db.commit()
+    await db.refresh(refresh_token)
+    return {"msg": "Tizimdan chiqish muvaffaqiyatli amalga oshirildi"}
