@@ -54,7 +54,6 @@ async def is_authenticated(token: str = Depends(oauth2_scheme), db: AsyncSession
     if payload is None or payload.get("type") != "access":
         raise error
 
-    # Blacklistda bor-yo'qligini tekshirish
     blacklisted = await db.execute(
         select(Blacklist).where(Blacklist.token == token)
     )
